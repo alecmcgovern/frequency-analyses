@@ -1,7 +1,26 @@
 window.onload = function() {
-	// alert("welcome");
-	console.log("hello all");
-	let header = document.getElementsByClassName('right-panel')[0];
+	let audioTracks = [
+		{
+			title: "Obsidian - Deadmau5",
+			url: "./audio/Obsidian.mp3" 
+		},
+		{
+			title: "I Shot The Sheriff - Bob Marley",
+			url: "./audio/Sheriff.mp3" 
+		},
+		{
+			title: "Data Points - Monitor",
+			url: "./audio/DataPoints.wav" 
+		},
+		{
+			title: "Nothing - Harvey McKay & Saytek",
+			url: "./audio/Nothing.mp3" 
+		},
+		{
+			title: "Peet - Paul Kalkbrenner",
+			url: "./audio/Peet.mp3" 
+		}
+	];
 
 	let canvas = document.getElementById('canvas1');
 	let context = canvas.getContext('2d');
@@ -24,7 +43,33 @@ window.onload = function() {
 
 		let MEDIA_ELEMENT_NODES = new WeakMap();
 
-		setupAudioControls();
+		loadAudioTracks();
+
+		function loadAudioTracks() {
+			let songList = document.getElementsByClassName('song-list')[0];
+
+			audioTracks.forEach((track) => {
+				let audioElement = document.createElement("audio");
+				audioElement.classList.add("audio");
+				audioElement.src = track.url;
+
+				let audioControls = document.createElement("div");
+				let playPause = document.createElement("div");
+				let songTitle = document.createElement("div");
+				audioControls.classList.add("audio-controls");
+				playPause.classList.add("play-pause");
+				songTitle.classList.add("song-title");
+
+				audioControls.appendChild(playPause);
+				audioControls.appendChild(songTitle);
+
+				songTitle.innerHTML = track.title;
+
+				songList.appendChild(audioElement);
+				songList.appendChild(audioControls);
+			});
+			setupAudioControls();
+		}
 
 
 		function setupAudioControls() {
@@ -34,6 +79,8 @@ window.onload = function() {
 			let playPauseArray = [].slice.call(PlayPauseControls);;
 
 			playPauseArray.forEach((control, index) => {
+				setupAudioContext(audioElements[index]);
+
 				control.addEventListener("click", () => {
 					if (!playPauseArray[index].classList.contains("pause")) {
 
@@ -41,8 +88,13 @@ window.onload = function() {
 							currentAudio.pause();
 							playPauseArray[currentAudioIndex].classList.remove("pause");
 						}
+						if (MEDIA_ELEMENT_NODES.has(audioElements[index])) {
+							audioSrc = MEDIA_ELEMENT_NODES.get(audioElements[index]);
+							audioSrc.connect(analyser);
+							analyser.connect(ctx.destination);
+						}
 						playPauseArray[index].classList.add("pause");
-						setupAudioContext(audioElements[index]);
+						// setupAudioContext(audioElements[index]);
 						currentAudio = audioElements[index];
 						currentAudioIndex = index;
 						currentAudio.play();
@@ -52,7 +104,9 @@ window.onload = function() {
 						currentAudio = null;
 					}
 				});
-			});		
+			});	
+
+			renderFrame();	
 		}
 
 		function setupAudioContext(audio) {
@@ -71,7 +125,7 @@ window.onload = function() {
 			// audioSrc = ctx.createMediaElementSource(audio);
 			audioSrc.connect(analyser);
 			analyser.connect(ctx.destination);
-			renderFrame();
+			// renderFrame();
 		}
 
 
