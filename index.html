@@ -1,21 +1,48 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Audio analyser</title>
+	<title>Audio Frequency Analyser</title>
 	<link rel="stylesheet" type="text/css" href="./style.css">
+
+	<link href="https://fonts.googleapis.com/css?family=Actor|Monoton" rel="stylesheet">
 
 	<script type="text/javascript" src="./scripts.js"></script>
 </head>
 <body>
-	<div class="header">
-		<h1>Audio Frequency</h1>
+	<div class="right-panel">
+		<h1>Frequency Analyser</h1>
+
+		<audio preload class="audio" src="./audio/Obsidian.mp3"></audio>
+		<div class="audio-controls">
+			<div class="play-pause"></div>
+			<div class="song-title">Obsidian - Deadmau5</div>
+		</div>
+
+		<audio preload class="audio" src="./audio/DataPoints.wav"></audio>
+		<div class="audio-controls">
+			<div class="play-pause"></div>
+			<div class="song-title">Data Points - Monitor</div>
+		</div>
+
+		<audio preload class="audio" src="./audio/Sheriff.mp3"></audio>
+		<div class="audio-controls">
+			<div class="play-pause"></div>
+			<div class="song-title">I Shot The Sheriff - Bob Marley</div>
+		</div>
+
 	</div>
 	<div class="page-container">
 		<div class="container">
-			<canvas id="canvas1" width="500" height="500"></canvas>
+			<canvas id="canvas1" width="300" height="300"></canvas>
 		</div>
 		<div class="container">
-			<canvas id="canvas2" width="500" height="500"></canvas>
+			<canvas id="canvas2" width="300" height="300"></canvas>
+		</div>
+		<div class="container">
+			<canvas id="canvas3" width="300" height="300"></canvas>
+		</div>
+		<div class="container">
+			<canvas id="canvas4" width="300" height="300"></canvas>
 		</div>
 	</div>
 </body>

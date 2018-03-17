@@ -1,33 +1,86 @@
 window.onload = function() {
 	// alert("welcome");
 	console.log("hello all");
-	let header = document.getElementsByClassName('header')[0];
+	let header = document.getElementsByClassName('right-panel')[0];
 
 	let canvas = document.getElementById('canvas1');
 	let context = canvas.getContext('2d');
 	let canvas2 = document.getElementById('canvas2');
 	let context2 = canvas2.getContext('2d');
+	let canvas3 = document.getElementById('canvas3');
+	let context3 = canvas3.getContext('2d');
+	let canvas4 = document.getElementById('canvas4');
+	let context4 = canvas4.getContext('2d');
 
 	let AudioContext = window.AudioContext || window.webkitAudioContext || false;
-
-	let audio = new Audio();
-	audio.src = "./Audio/Memorand.wav";
-	audio.controls = true;
-	audio.autoplay = false;
-	// audio.muted = true;
-	audio.id = 'audio1';
-	header.appendChild(audio);
-
- 
+		
 	if (AudioContext) {
-		let ctx = new AudioContext();
-		let analyser = ctx.createAnalyser();
+		let ctx = null;
+		let analyser = null;
+		let audioSrc = null;
 
-		let audioSrc = ctx.createMediaElementSource(audio);
-		audioSrc.connect(analyser);
-		analyser.connect(ctx.destination);
-		renderFrame();
+		let currentAudio = null;
+		let currentAudioIndex = null;
 
+		let MEDIA_ELEMENT_NODES = new WeakMap();
+
+		setupAudioControls();
+
+
+		function setupAudioControls() {
+			let audioElements = document.getElementsByClassName("audio");
+			let PlayPauseControls = document.getElementsByClassName("play-pause");
+
+			let playPauseArray = [].slice.call(PlayPauseControls);;
+
+			playPauseArray.forEach((control, index) => {
+				control.addEventListener("click", () => {
+					if (!playPauseArray[index].classList.contains("pause")) {
+
+						if (currentAudio) {
+							currentAudio.pause();
+							playPauseArray[currentAudioIndex].classList.remove("pause");
+						}
+						playPauseArray[index].classList.add("pause");
+						setupAudioContext(audioElements[index]);
+						currentAudio = audioElements[index];
+						currentAudioIndex = index;
+						currentAudio.play();
+					} else {
+						playPauseArray[index].classList.remove("pause");
+						audioElements[index].pause();
+						currentAudio = null;
+					}
+				});
+			});		
+		}
+
+		function setupAudioContext(audio) {
+			if (ctx == null) {
+				ctx = new AudioContext();	
+			}
+			analyser = ctx.createAnalyser();
+
+			if (MEDIA_ELEMENT_NODES.has(audio)) {
+				audioSrc = MEDIA_ELEMENT_NODES.get(audio);
+			} else {
+				audioSrc = ctx.createMediaElementSource(audio);
+				MEDIA_ELEMENT_NODES.set(audio, audioSrc);
+			}
+
+			// audioSrc = ctx.createMediaElementSource(audio);
+			audioSrc.connect(analyser);
+			analyser.connect(ctx.destination);
+			renderFrame();
+		}
+
+
+		function paintBackground(context, color) {
+			context.beginPath();
+			context.rect(0, 0, canvas2.width, canvas2.height);
+			context.fillStyle = color;
+			context.fill();
+		}
 
 		function renderFrame() {
 			requestAnimationFrame(renderFrame);
@@ -35,17 +88,15 @@ window.onload = function() {
 			let frequencyData = new Uint8Array(analyser.frequencyBinCount);
 			analyser.getByteFrequencyData(frequencyData);
 
+
+
+
+
 			// CANVAS 1 //
-			const num_bars = 100;
+			const num_bars = 50;
 			let bin_size = Math.floor(frequencyData.length / num_bars);
 
-
-			context.clearRect(0, 0, canvas.width, canvas.height);
-			context.beginPath();
-			context.rect(0, 0, canvas2.width, canvas2.height);
-			context.fillStyle = "black";
-			context.fill();
-
+			paintBackground(context, "black");
 			context.fillStyle = "white";
 			context.fillRect(20, canvas.height/2, canvas.width - 40, 1);
 
@@ -60,41 +111,38 @@ window.onload = function() {
 				let bar_width = (canvas.width - 40) / num_bars;
 				let scaled_average = (average / 256) * canvas.height/2;
 				context.fillStyle = "#"+((1<<24)*Math.random()|0).toString(16);
-				context.fillRect(i * bar_width + 20, canvas.height/2 + scaled_average/2, bar_width - 2, -scaled_average);
+
+				const x = i * bar_width + 20;
+				const y = canvas.height/2 + scaled_average/2;
+
+				context.fillRect(x, y, bar_width - 2, -scaled_average);
 			}
 
 
 
 			// CANVAS 2 //
 			const num_bars2 = 15;
-
 			let bin_size2 = Math.floor(frequencyData.length / num_bars2);
 
-			context2.clearRect(0, 0, canvas2.width, canvas2.height);
-
-			context2.beginPath();
-			context2.rect(0, 0, canvas2.width, canvas2.height);
-			context2.fillStyle = "black";
-			context2.fill();
-
+			paintBackground(context2, "black");
 
 			for (var i = 0; i < num_bars2; i++) {
-			// for (var i = 0; i < 1; i++) {
 				let sum = 0;
 				for (var j = 0; j < bin_size2; j++) {
-					sum += frequencyData[(i * bin_size2) + j];
+					sum += frequencyData[i + j];
 				}
 
 				let average = sum / bin_size2;
-				let bar_width = (canvas2.width - 140) / (num_bars2 * 2);
-				let scaled_average = (average / 256) * canvas2.height/8;
+				let bar_width = (canvas2.width - 140) / (num_bars2 * 3);
+				let scaled_average = (average / 256) * canvas2.height/6;
 
 
 				context2.beginPath();
 				let startAngle = 0; // Starting point on circle
         		let endAngle = Math.PI + (Math.PI * j) / 2; // End point on circle
-        		let radius = canvas2.width/2 - 40 + scaled_average > 0 ? canvas2.width/2 - i*bar_width - 40 + scaled_average : 0;
+        		let radius = canvas2.width/2 - i*bar_width - 100 + scaled_average > 0 ? canvas2.width/2 - i*bar_width - 100 + scaled_average : 0;
 				context2.arc(canvas2.width/2, canvas2.height/2, radius, startAngle, endAngle, false);
+
 				if (scaled_average > 0) {
 					context2.lineWidth = num_bars2 - i > 1 ? num_bars2 - i : 1;
 					context2.strokeStyle = "#"+((1<<24)*Math.random()|0).toString(16);
@@ -102,13 +150,66 @@ window.onload = function() {
 				} else {
 					context2.lineWidth = 0;
 				}
-				// context2.strokeStyle = "rgb(0, 255, 233)";
+			}
+
+
+			// CANVAS 3 //
+			bin_size = Math.floor(frequencyData.length / num_bars);
+
+			paintBackground(context3, "black");
+			context3.fillStyle = "white";
+			context3.fillRect(20, canvas.height/2, canvas.width - 40, 1);
+
+			for (var i = 0; i < num_bars; i++) {
+				let sum = 0;
+				for (var j = 0; j < bin_size; j++) {
+					sum += frequencyData[(i * bin_size) + j];
+				}
+
+				let average = sum / bin_size;
+				let bar_width = (canvas.width - 40) / num_bars;
+				let scaled_average = (average / 256) * canvas.height/2;
+				context3.fillStyle = "#"+((1<<24)*Math.random()|0).toString(16);
+
+				const x = i * bar_width + 20;
+				const y = canvas.height/2 - scaled_average/2;
+
+				context3.fillRect(x, y, bar_width - 2, 2);
+			}
+
+
+
+
+			// CANVAS 4 //
+			bin_size = Math.floor(frequencyData.length / num_bars);
+
+			paintBackground(context4, "black");
+			context4.fillStyle = "white";
+			context4.fillRect(20, canvas.height/2, canvas.width - 40, 1);
+
+			for (var i = 0; i < num_bars; i++) {
+				let sum = 0;
+				for (var j = 0; j < bin_size; j++) {
+					sum += frequencyData[(i * bin_size) + j];
+				}
+
+				let average = sum / bin_size;
+				let bar_width = (canvas.width - 40) / num_bars;
+				let scaled_average = (average / 256) * canvas.height/2;
+				context4.fillStyle = "#"+((1<<24)*Math.random()|0).toString(16);
+
+				const x = canvas.width - i * bar_width - 23;
+				const y = canvas.height/2 + scaled_average/2;
+
+				context4.fillRect(x, y, bar_width - 2, -scaled_average);
 			}
 		}
 
 	} else {
 		alert("Sorry, the Web Audio API is not supported by your browser.");
 	}
+
+ 
 
   //   if (navigator.mediaDevices) {
 		// navigator.mediaDevices.getUserMedia = navigator.mediaDevices.getUserMedia || navigator.mediaDevices.webkitGetUserMedia || navigator.mediaDevices.mozGetUserMedia || navigator.mediaDevices.msGetUserMedia || navigator.mediaDevices.oGetUserMedia;
