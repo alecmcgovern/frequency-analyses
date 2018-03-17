@@ -19,6 +19,10 @@ window.onload = function() {
 		{
 			title: "Peet - Paul Kalkbrenner",
 			url: "./audio/Peet.mp3" 
+		},
+		{
+			title: "Memorand (Nomadic Remix) - Monitor",
+			url: "./audio/Memorand.mp3"
 		}
 	];
 
@@ -97,6 +101,7 @@ window.onload = function() {
 						// setupAudioContext(audioElements[index]);
 						currentAudio = audioElements[index];
 						currentAudioIndex = index;
+						currentAudio.volume = 0.5;
 						currentAudio.play();
 					} else {
 						playPauseArray[index].classList.remove("pause");
@@ -226,9 +231,10 @@ window.onload = function() {
 				context3.fillStyle = "#"+((1<<24)*Math.random()|0).toString(16);
 
 				const x = i * bar_width + 20;
-				const y = canvas.height/2 - scaled_average/2;
+				const y = canvas.height/2 - scaled_average/2 - 2;
+				const height = scaled_average > 0 ? 2 : 0;
 
-				context3.fillRect(x, y, bar_width - 2, 2);
+				context3.fillRect(x, y, bar_width - 2, height);
 			}
 
 
