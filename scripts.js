@@ -36,6 +36,7 @@ window.onload = function() {
 	let context4 = canvas4.getContext('2d');
 
 	let AudioContext = window.AudioContext || window.webkitAudioContext || false;
+	let inputType = 0;
 		
 	if (AudioContext) {
 		let ctx = null;
@@ -47,7 +48,23 @@ window.onload = function() {
 
 		let MEDIA_ELEMENT_NODES = new WeakMap();
 
+		setupMicrophone();
 		loadAudioTracks();
+		setupAudioControls();
+
+		function setupMicrophone() {
+			let microphoneInputButton = document.getElementsByClassName("audio-input")[0];
+
+			microphoneInputButton.addEventListener("click", () => {
+				if (inputType === 0) {
+					inputType = 1;
+					microphoneInputButton.classList.add("input-on");
+				} else {
+					inputType = 0;
+					microphoneInputButton.classList.remove("input-on");
+				}
+			});
+		};
 
 		function loadAudioTracks() {
 			let songList = document.getElementsByClassName('song-list')[0];
@@ -72,7 +89,6 @@ window.onload = function() {
 				songList.appendChild(audioElement);
 				songList.appendChild(audioControls);
 			});
-			setupAudioControls();
 		}
 
 
