@@ -34,6 +34,10 @@ window.onload = function() {
 	let context3 = canvas3.getContext('2d');
 	let canvas4 = document.getElementById('canvas4');
 	let context4 = canvas4.getContext('2d');
+	let canvas5 = document.getElementById('canvas5');
+	let context5 = canvas5.getContext('2d');
+	let canvas6 = document.getElementById('canvas6');
+	let context6 = canvas6.getContext('2d');
 
 	let AudioContext = window.AudioContext || window.webkitAudioContext || false;
 	let inputType = 0;
@@ -260,8 +264,6 @@ window.onload = function() {
 			bin_size = Math.floor(frequencyData.length / num_bars);
 
 			paintBackground(context4, "black");
-			context4.fillStyle = "white";
-			context4.fillRect(20, canvas.height/2, canvas.width - 40, 1);
 
 			for (var i = 0; i < num_bars; i++) {
 				let sum = 0;
@@ -274,10 +276,70 @@ window.onload = function() {
 				let scaled_average = (average / 256) * canvas.height/2;
 				context4.fillStyle = "#"+((1<<24)*Math.random()|0).toString(16);
 
+				context4.beginPath();
+				let startAngle = 0; // Starting point on circle
+        		let endAngle = Math.PI + (Math.PI * j) / 2; // End point on circle
+        		let radius = canvas2.width/2 - i*bar_width - 100 + scaled_average > 0 ? canvas2.width/2 - i*bar_width - 100 + scaled_average : 0;
+				context4.arc(canvas2.width/2, canvas2.height/2, radius, startAngle, endAngle, false);
+
+				if (scaled_average > 0) {
+					context4.lineWidth = num_bars2 - i > 1 ? num_bars2 - i : 1;
+					context4.strokeStyle = "#"+((1<<24)*Math.random()|0).toString(16);
+					context4.stroke();
+				} else {
+					context4.lineWidth = 0;
+				}
+			}
+
+			// CANVAS 5 //
+			bin_size = Math.floor(frequencyData.length / num_bars);
+
+			paintBackground(context5, "black");
+			context5.fillStyle = "white";
+			context5.fillRect(20, canvas.height/2, canvas.width - 50, 1);
+
+			for (var i = 0; i < num_bars; i++) {
+				let sum = 0;
+				for (var j = 0; j < bin_size; j++) {
+					sum += frequencyData[(i * bin_size) + j];
+				}
+
+				let average = sum / bin_size;
+				let bar_width = (canvas.width - 40) / num_bars;
+				let scaled_average = (average / 256) * canvas.height/2;
+				context5.fillStyle = "#"+((1<<24)*Math.random()|0).toString(16);
+
 				const x = canvas.width - i * bar_width - 23;
 				const y = canvas.height/2 + scaled_average/2;
 
-				context4.fillRect(x, y, bar_width - 2, -scaled_average);
+				context5.fillRect(x, y, bar_width - 2, -scaled_average);
+			}
+
+
+			// CANVAS 6 //
+			bin_size = Math.floor(frequencyData.length / num_bars);
+
+			paintBackground(context6, "black");
+
+			for (var i = 0; i < num_bars; i++) {
+				let sum = 0;
+				for (var j = 0; j < bin_size; j++) {
+					sum += frequencyData[(i * bin_size) + j];
+				}
+
+				let average = sum / bin_size;
+				let bar_width = (canvas.width - 40) / num_bars;
+				let scaled_average = (average / 256) * canvas.height/2;
+				context6.strokeStyle = "#"+((1<<24)*Math.random()|0).toString(16);
+				context6.lineWidth = 2;
+
+				context6.beginPath();
+				let startAngle = 0; // Starting point on circle
+        		let endAngle = Math.PI + (Math.PI * j) / 2; // End point on circle
+        		let radius = scaled_average;
+
+				context6.arc(canvas2.width/2, canvas2.height/2, radius, startAngle, endAngle);
+				context6.stroke();
 			}
 		}
 
