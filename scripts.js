@@ -53,6 +53,7 @@ window.onload = function() {
 		let MEDIA_ELEMENT_NODES = new WeakMap();
 
 		setupMicrophone();
+		setupMenuControl();
 		loadAudioTracks();
 		setupAudioControls();
 
@@ -69,6 +70,20 @@ window.onload = function() {
 				}
 			});
 		};
+
+		function setupMenuControl() {
+			let menuToggle = document.getElementsByClassName("menu-icon")[0];
+			let rightPanel = document.getElementsByClassName("right-panel")[0];
+			menuToggle.addEventListener("click", () => {
+				if (menuToggle.classList.contains("menu-open")) {
+					menuToggle.classList.remove("menu-open");
+					rightPanel.classList.remove("menu-open");
+				} else {
+					menuToggle.classList.add("menu-open");
+					rightPanel.classList.add("menu-open");
+				}
+			});
+		}
 
 		function loadAudioTracks() {
 			let songList = document.getElementsByClassName('song-list')[0];
@@ -346,8 +361,6 @@ window.onload = function() {
 	} else {
 		alert("Sorry, the Web Audio API is not supported by your browser.");
 	}
-
- 
 
   //   if (navigator.mediaDevices) {
 		// navigator.mediaDevices.getUserMedia = navigator.mediaDevices.getUserMedia || navigator.mediaDevices.webkitGetUserMedia || navigator.mediaDevices.mozGetUserMedia || navigator.mediaDevices.msGetUserMedia || navigator.mediaDevices.oGetUserMedia;
