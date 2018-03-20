@@ -74,6 +74,7 @@ window.onload = function() {
 		let currentAudioIndex = null;
 
 		let MEDIA_ELEMENT_NODES = new WeakMap();
+		let frequencyData = null;
 
 		setupMenuControl();
 		loadAudioTracks();
@@ -153,10 +154,10 @@ window.onload = function() {
 						currentAudio.volume = 0.5;
 						currentAudio.play();
 					} else {
-						audioSrc.disconnect(analyser);
-						playPauseArray[index].classList.remove("pause");
 						audioElements[index].pause();
 						currentAudio = null;
+						audioSrc.disconnect(analyser);
+						playPauseArray[index].classList.remove("pause");
 					}
 				});
 			});	
@@ -182,8 +183,6 @@ window.onload = function() {
 
 					audioSrc = ctx.createMediaStreamSource(inputStream);
 					audioSrc.connect(analyser);
-
-					analyser.connect(ctx.destination);
 
 					currentAudio = null;
 					currentAudioIndex = null;
@@ -228,9 +227,10 @@ window.onload = function() {
 		function renderFrame() {
 			requestAnimationFrame(renderFrame);
 
-			let frequencyData = new Uint8Array(analyser.frequencyBinCount);
-			analyser.getByteFrequencyData(frequencyData);
-			// console.log(frequencyData);
+			frequencyData = new Uint8Array(analyser.frequencyBinCount);
+			if (currentAudio || inputType === 1) {	
+				analyser.getByteFrequencyData(frequencyData);
+			}
 
 
 			// Pixi Canvas
