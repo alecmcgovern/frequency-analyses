@@ -23,6 +23,10 @@ window.onload = function() {
 		{
 			title: "Memorand (Nomadic Remix) - Monitor",
 			url: "./audio/Memorand.mp3"
+		},
+		{
+			title: "Keraunoscopia - Nomadic",
+			url: "./audio/Keraunoscopia.mp3"
 		}
 	];
 
@@ -41,7 +45,23 @@ window.onload = function() {
 
 	let AudioContext = window.AudioContext || window.webkitAudioContext || false;
 	let inputType = 0;
-		
+	let inputStream = null;
+
+	// Setup audio input
+	if (navigator.mediaDevices) {
+		navigator.mediaDevices.getUserMedia = navigator.mediaDevices.getUserMedia || navigator.mediaDevices.webkitGetUserMedia || navigator.mediaDevices.mozGetUserMedia || navigator.mediaDevices.msGetUserMedia || navigator.mediaDevices.oGetUserMedia;
+
+		navigator.mediaDevices.getUserMedia({audio: true, video: false}).then(function(stream) {
+			inputStream = stream;
+		}).catch(function(err) {
+			console.log(err);
+		});
+	} else {
+		console.log("no media devices found");
+	}
+
+
+	// Audio context analyser	
 	if (AudioContext) {
 		let ctx = null;
 		let analyser = null;
@@ -52,24 +72,9 @@ window.onload = function() {
 
 		let MEDIA_ELEMENT_NODES = new WeakMap();
 
-		setupMicrophone();
 		setupMenuControl();
 		loadAudioTracks();
 		setupAudioControls();
-
-		function setupMicrophone() {
-			let microphoneInputButton = document.getElementsByClassName("audio-input")[0];
-
-			microphoneInputButton.addEventListener("click", () => {
-				if (inputType === 0) {
-					inputType = 1;
-					microphoneInputButton.classList.add("input-on");
-				} else {
-					inputType = 0;
-					microphoneInputButton.classList.remove("input-on");
-				}
-			});
-		};
 
 		function setupMenuControl() {
 			let menuToggle = document.getElementsByClassName("menu-icon")[0];
@@ -110,12 +115,11 @@ window.onload = function() {
 			});
 		}
 
-
 		function setupAudioControls() {
 			let audioElements = document.getElementsByClassName("audio");
 			let PlayPauseControls = document.getElementsByClassName("play-pause");
-
-			let playPauseArray = [].slice.call(PlayPauseControls);;
+			let microphoneInputButton = document.getElementsByClassName("audio-input")[0];
+			let playPauseArray = [].slice.call(PlayPauseControls);
 
 			playPauseArray.forEach((control, index) => {
 				setupAudioContext(audioElements[index]);
@@ -125,26 +129,71 @@ window.onload = function() {
 
 						if (currentAudio) {
 							currentAudio.pause();
+							audioSrc.disconnect(analyser);
 							playPauseArray[currentAudioIndex].classList.remove("pause");
 						}
+
+						if (inputType === 1) {
+							audioSrc.disconnect(analyser);
+							microphoneInputButton.classList.remove("input-on");
+							inputType = 0;
+						}
+
 						if (MEDIA_ELEMENT_NODES.has(audioElements[index])) {
 							audioSrc = MEDIA_ELEMENT_NODES.get(audioElements[index]);
 							audioSrc.connect(analyser);
 							analyser.connect(ctx.destination);
 						}
 						playPauseArray[index].classList.add("pause");
-						// setupAudioContext(audioElements[index]);
 						currentAudio = audioElements[index];
 						currentAudioIndex = index;
 						currentAudio.volume = 0.5;
 						currentAudio.play();
 					} else {
+						audioSrc.disconnect(analyser);
 						playPauseArray[index].classList.remove("pause");
 						audioElements[index].pause();
 						currentAudio = null;
 					}
 				});
 			});	
+
+
+			// Direct audio input
+			microphoneInputButton.addEventListener("click", () => {
+				if (inputType === 0) {
+					inputType = 1;
+					microphoneInputButton.classList.add("input-on");
+
+					if (currentAudio) {
+						currentAudio.pause();
+						audioSrc.disconnect(analyser);
+						playPauseArray[currentAudioIndex].classList.remove("pause");
+					}
+
+
+					if (ctx == null) {
+						ctx = new AudioContext();	
+						analyser = ctx.createAnalyser();
+					}
+
+					audioSrc = ctx.createMediaStreamSource(inputStream);
+					audioSrc.connect(analyser);
+
+					analyser.connect(ctx.destination);
+
+					currentAudio = null;
+					currentAudioIndex = null;
+				} else {
+					audioSrc.disconnect(analyser);
+					inputType = 0;
+					microphoneInputButton.classList.remove("input-on");
+					if (currentAudio) {
+						currentAudio.pause();
+						currentAudio = null;
+					}
+				}
+			});
 
 			renderFrame();	
 		}
@@ -162,10 +211,7 @@ window.onload = function() {
 				MEDIA_ELEMENT_NODES.set(audio, audioSrc);
 			}
 
-			// audioSrc = ctx.createMediaElementSource(audio);
 			audioSrc.connect(analyser);
-			analyser.connect(ctx.destination);
-			// renderFrame();
 		}
 
 
@@ -181,9 +227,7 @@ window.onload = function() {
 
 			let frequencyData = new Uint8Array(analyser.frequencyBinCount);
 			analyser.getByteFrequencyData(frequencyData);
-
-
-
+			// console.log(frequencyData);
 
 
 			// CANVAS 1 //
@@ -361,25 +405,5 @@ window.onload = function() {
 	} else {
 		alert("Sorry, the Web Audio API is not supported by your browser.");
 	}
-
-  //   if (navigator.mediaDevices) {
-		// navigator.mediaDevices.getUserMedia = navigator.mediaDevices.getUserMedia || navigator.mediaDevices.webkitGetUserMedia || navigator.mediaDevices.mozGetUserMedia || navigator.mediaDevices.msGetUserMedia || navigator.mediaDevices.oGetUserMedia;
-
-		// navigator.mediaDevices.getUserMedia({audio: true, video: false}).then(function(stream) {
-		// 	try {
-		// 		audio.srcObject = stream;
-		// 	} catch (error) {
-		// 		audio.src = URL.createObjectURL(stream);
-		// 	}
-		// })
-		// .catch(function(err) {
-		// 	console.log(err);
-		// });
-  //   } else {
-  //       console.log("no media devices found");
-  //   }
-
-
-	
 }
 

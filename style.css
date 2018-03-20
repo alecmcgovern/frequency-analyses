@@ -38,7 +38,8 @@ body {
 }
 
 .menu-icon.menu-open {
-	right: 300px;
+	right: 340px;
+	will-change: right;
 }
 
 .bar1, .bar2, .bar3 {
@@ -46,7 +47,8 @@ body {
 	height: 5px;
 	background-color: black;
 	margin: 6px 0;
-    transition: 0.4s;
+	transition: 0.4s;
+	border-radius: 3px;
 }
 
 .menu-open .bar1 {
@@ -59,14 +61,14 @@ body {
 }
 
 .menu-open .bar3 {
-	-webkit-transform: rotate(45deg) translate(-8px, -8px);
-	transform: rotate(45deg) translate(-8px, -8px);
+	-webkit-transform: rotate(45deg) translate(-9px, -6px);
+	transform: rotate(45deg) translate(-9px, -6px);
 }
 
 .right-panel {
-	min-width: 300px;
+	min-width: 340px;
 	height: 100vh;
-	margin-right: -300px;
+	margin-right: -340px;
 
 	display: flex;
 	flex-direction: column;
@@ -76,6 +78,7 @@ body {
 	font-family: 'Actor', sans-serif;
 
 	transition: margin-right 0.4s;
+	will-change: margin-right;
 }
 
 .right-panel.menu-open {
@@ -89,10 +92,22 @@ h1 {
 	font-family: 'Monoton', cursive;
 }
 
-.audio-input {
-	height: 40px;
-	width: 150px;
+
+/* Audio Input Control*/
+.audio-input-container {
+	position: relative;
+	width: 100%;
+
+	display: flex;
+	align-items: center;
+	justify-content: space-around;
+
 	margin-bottom: 20px;
+}
+
+.audio-input {
+	height: 30px;
+	width: 150px;
 
 	display: flex;
 	justify-content: center;
@@ -100,15 +115,16 @@ h1 {
 
 
 	border: 1px solid yellow;
+	border-radius: 28px;
 	color: yellow;
 
 	cursor: pointer;
 	-webkit-touch-callout: none; /* iOS Safari */
-    -webkit-user-select: none; /* Safari */
-     -khtml-user-select: none; /* Konqueror HTML */
-       -moz-user-select: none; /* Firefox */
-        -ms-user-select: none; /* Internet Explorer/Edge */
-            user-select: none;
+	-webkit-user-select: none; /* Safari */
+	 -khtml-user-select: none; /* Konqueror HTML */
+	   -moz-user-select: none; /* Firefox */
+		-ms-user-select: none; /* Internet Explorer/Edge */
+			user-select: none;
 }
 
 .input-on {
@@ -131,16 +147,12 @@ h1 {
 	align-items: center;
 }
 
-.audio-controls:first-of-type {
-	border-top: 1px solid white;
-}
-
 .play-pause {
-	width: 20px;
-	height: 20px;
+	width: 16px;
+	height: 16px;
 
 	border-style: solid;
-	border-width: 10px 0px 10px 20px;
+	border-width: 8px 0px 8px 16px;
 	border-color: transparent transparent transparent white;
 	box-sizing: border-box;
 	
@@ -153,7 +165,7 @@ h1 {
 
 .play-pause.pause {
 	border-style: double;
-	border-width: 0 0 0 20px;
+	border-width: 0 0 0 16px;
 }
 
 .song-title {
